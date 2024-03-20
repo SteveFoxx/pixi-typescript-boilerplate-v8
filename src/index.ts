@@ -1,9 +1,5 @@
-import "pixi-spine";
 import "./style.css";
 import { Application, Assets } from "pixi.js";
-import { getSpine } from "./utils/spine-example";
-import { createBird } from "./utils/create-bird";
-import { attachConsole } from "./utils/attach-console";
 
 const gameWidth = 1280;
 const gameHeight = 720;
@@ -16,7 +12,8 @@ console.log(
     "color: #ff66a1;",
 );
 
-const app = new Application<HTMLCanvasElement>({
+const app = new Application();
+app.init({
     backgroundColor: 0xd3d3d3,
     width: gameWidth,
     height: gameHeight,
@@ -25,44 +22,23 @@ const app = new Application<HTMLCanvasElement>({
 window.onload = async (): Promise<void> => {
     await loadGameAssets();
 
-    document.body.appendChild(app.view);
+    document.body.appendChild(app.canvas);
 
     resizeCanvas();
 
-    const birdFromSprite = createBird();
-    birdFromSprite.anchor.set(0.5, 0.5);
-    birdFromSprite.position.set(gameWidth / 2, gameHeight / 4);
-
-    const spineExample = await getSpine();
-
-    app.stage.addChild(birdFromSprite);
-    app.stage.addChild(spineExample);
+    console.log(await Assets.get("pixie"));
     app.stage.interactive = true;
-
-    if (VERSION.includes("d")) {
-        // if development version
-        attachConsole(app.stage, gameWidth, gameHeight);
-    }
 };
 
 async function loadGameAssets(): Promise<void> {
     const manifest = {
         bundles: [
             {
-                name: "bird",
-                assets: [
-                    {
-                        name: "bird",
-                        srcs: "./assets/simpleSpriteSheet.json",
-                    },
-                ],
-            },
-            {
                 name: "pixie",
                 assets: [
                     {
-                        name: "pixie",
-                        srcs: "./assets/spine-assets/pixie.json",
+                        alias: "pixie",
+                        src: "./assets/spine-assets/pixie.json",
                     },
                 ],
             },
@@ -70,7 +46,7 @@ async function loadGameAssets(): Promise<void> {
     };
 
     await Assets.init({ manifest });
-    await Assets.loadBundle(["bird", "pixie"]);
+    await Assets.load("pixie");
 }
 
 function resizeCanvas(): void {

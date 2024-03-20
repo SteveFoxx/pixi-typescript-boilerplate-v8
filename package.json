@@ -25,10 +25,9 @@
     "author": "jkanchelov",
     "license": "MIT",
     "dependencies": {
-        "core-js": "^3.34.0",
-        "pixi-console": "^4.0.0",
+        "core-js": "^3.36.0",
         "pixi-spine": "^4.0.4",
-        "pixi.js": "^7.3.2"
+        "pixi.js": "^8.0.2"
     },
     "devDependencies": {
         "@babel/core": "7.23.6",
