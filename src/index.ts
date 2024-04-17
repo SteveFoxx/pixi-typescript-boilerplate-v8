@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import "./style.css";
 import "@pixi/spine-pixi";
 import { Spine } from "@pixi/spine-pixi";
@@ -7,7 +8,7 @@ const gameWidth = 1280;
 const gameHeight = 720;
 
 console.log(
-    `%cPixiJS V7\nTypescript Boilerplate%c ${VERSION} %chttp://www.pixijs.com %c❤️`,
+    `%cPixiJS V8\nTypescript Boilerplate%c ${VERSION} %chttp://www.pixijs.com %c❤️`,
     "background: #ff66a1; color: #FFFFFF; padding: 2px 4px; border-radius: 2px; font-weight: bold;",
     "color: #D81B60; font-weight: bold;",
     "color: #C2185B; font-weight: bold; text-decoration: underline;",
@@ -16,34 +17,43 @@ console.log(
 
 const app = new Application();
 app.init({
-    backgroundColor: 0xd3d3d3,
     width: gameWidth,
     height: gameHeight,
-});
-
-window.onload = async (): Promise<void> => {
-    await loadGameAssets();
-
+    preference: "webgl",
+    backgroundColor: 0xd3d3d3,
+}).then(async () => {
     document.body.appendChild(app.canvas);
+    //@ts-ignore
+    globalThis.__PIXI_APP__ = app;
 
     resizeCanvas();
 
-    // const spine = getSpine("running", "pixie_skeleton", "pixie_atlas");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const stage = app.stage as any;
+
+    await loadGameAssets();
+
+    // Assets.add({
+    //     alias: "boss_skel",
+    //     src: "./assets/character@1.5x.json",
+    // });
+    // Assets.add({
+    //     alias: "boss_atlas",
+    //     src: "./assets/character@1.5x.atlas",
+    // });
+
+    // await Assets.load(["boss_skel", "boss_atlas"]);
 
     const sp = Spine.from({
-        skeleton: "pixie_skeleton",
-        atlas: "pixie_atlas",
-        scale: 1,
+        skeleton: "character_skeleton",
+        atlas: "character_atlas",
     });
 
-    sp.state.setAnimation(0, "running");
-    console.log(await Assets.get("pixie_skeleton"));
-    console.log(await Assets.get("pixie_atlas"));
-
-    app.stage.addChild(sp);
-
-    app.stage.interactive = true;
-};
+    sp.position.set(850, 330);
+    sp.scale.set(0.75);
+    sp.state.setAnimation(0, "fs_hit", true);
+    stage.addChild(sp);
+});
 
 async function loadGameAssets(): Promise<void> {
     const manifest = {
@@ -52,12 +62,12 @@ async function loadGameAssets(): Promise<void> {
                 name: "pixie",
                 assets: [
                     {
-                        alias: "pixie_skeleton",
-                        src: "./assets/spine-assets/pixie.json",
+                        alias: "character_skeleton",
+                        src: "./assets/character@1.5x.json",
                     },
                     {
-                        alias: "pixie_atlas",
-                        src: "./assets/spine-assets/pixie.atlas",
+                        alias: "character_atlas",
+                        src: "./assets/character@1.5x.atlas",
                     },
                 ],
             },
@@ -65,7 +75,7 @@ async function loadGameAssets(): Promise<void> {
     };
 
     await Assets.init({ manifest });
-    await Assets.load(["pixie_skeleton", "pixie_atlas"]);
+    await Assets.load(["character_skeleton", "character_atlas"]);
 }
 
 function resizeCanvas(): void {
