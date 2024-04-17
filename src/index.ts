@@ -1,4 +1,6 @@
 import "./style.css";
+import "@pixi/spine-pixi";
+import { Spine } from "@pixi/spine-pixi";
 import { Application, Assets } from "pixi.js";
 
 const gameWidth = 1280;
@@ -26,7 +28,20 @@ window.onload = async (): Promise<void> => {
 
     resizeCanvas();
 
-    console.log(await Assets.get("pixie"));
+    // const spine = getSpine("running", "pixie_skeleton", "pixie_atlas");
+
+    const sp = Spine.from({
+        skeleton: "pixie_skeleton",
+        atlas: "pixie_atlas",
+        scale: 1,
+    });
+
+    sp.state.setAnimation(0, "running");
+    console.log(await Assets.get("pixie_skeleton"));
+    console.log(await Assets.get("pixie_atlas"));
+
+    app.stage.addChild(sp);
+
     app.stage.interactive = true;
 };
 
@@ -37,8 +52,12 @@ async function loadGameAssets(): Promise<void> {
                 name: "pixie",
                 assets: [
                     {
-                        alias: "pixie",
+                        alias: "pixie_skeleton",
                         src: "./assets/spine-assets/pixie.json",
+                    },
+                    {
+                        alias: "pixie_atlas",
+                        src: "./assets/spine-assets/pixie.atlas",
                     },
                 ],
             },
@@ -46,7 +65,7 @@ async function loadGameAssets(): Promise<void> {
     };
 
     await Assets.init({ manifest });
-    await Assets.load("pixie");
+    await Assets.load(["pixie_skeleton", "pixie_atlas"]);
 }
 
 function resizeCanvas(): void {
