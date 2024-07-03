@@ -26,8 +26,8 @@
     "license": "MIT",
     "dependencies": {
         "core-js": "^3.36.0",
-        "@pixi/spine-pixi": "1.0.8",
-        "pixi.js": "^8.0.2"
+        "@pixi/spine-pixi": "^2.0.2",
+        "pixi.js": "^8.2.1"
     },
     "devDependencies": {
         "@babel/core": "7.23.6",

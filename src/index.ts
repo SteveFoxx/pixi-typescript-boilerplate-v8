@@ -2,72 +2,79 @@
 import "./style.css";
 import "@pixi/spine-pixi";
 import { Spine } from "@pixi/spine-pixi";
-import { Application, Assets } from "pixi.js";
-
-const gameWidth = 1280;
-const gameHeight = 720;
-
-console.log(
-    `%cPixiJS V8\nTypescript Boilerplate%c ${VERSION} %chttp://www.pixijs.com %c❤️`,
-    "background: #ff66a1; color: #FFFFFF; padding: 2px 4px; border-radius: 2px; font-weight: bold;",
-    "color: #D81B60; font-weight: bold;",
-    "color: #C2185B; font-weight: bold; text-decoration: underline;",
-    "color: #ff66a1;",
-);
+import { Application, Assets, Container, Sprite, Texture } from "pixi.js";
 
 const app = new Application();
 app.init({
-    width: gameWidth,
-    height: gameHeight,
+    width: 1920,
+    height: 1080,
     preference: "webgl",
-    backgroundColor: 0xd3d3d3,
+    backgroundColor: 0x000000,
+    backgroundAlpha: 0,
 }).then(async () => {
     document.body.appendChild(app.canvas);
     //@ts-ignore
     globalThis.__PIXI_APP__ = app;
 
-    resizeCanvas();
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const stage = app.stage as any;
-
     await loadGameAssets();
 
-    // Assets.add({
-    //     alias: "boss_skel",
-    //     src: "./assets/character@1.5x.json",
-    // });
-    // Assets.add({
-    //     alias: "boss_atlas",
-    //     src: "./assets/character@1.5x.atlas",
-    // });
+    const spine = Spine.from({ skeleton: "characterData", atlas: "characterAtlas", scale: 1 });
+    spine.position.set(750, 750);
+    spine.state.setAnimation(0, "walk", true);
 
-    // await Assets.load(["boss_skel", "boss_atlas"]);
+    const blueBunny = new Sprite(Texture.from("bunnyBlue"));
+    blueBunny.position.set(450, 333);
+    const greenBunny = new Sprite(Texture.from("bunnyGreen"));
 
-    const sp = Spine.from({
-        skeleton: "character_skeleton",
-        atlas: "character_atlas",
+    const slotName = spine.skeleton.findSlot("mouth")?.data.name;
+    const container = new Container();
+    const anotherContainer = new Container();
+    anotherContainer.addChild(greenBunny);
+
+    if (slotName) {
+        spine.addSlotObject(slotName, container.addChild(anotherContainer));
+    }
+
+    const yetAnotherContainer = new Container();
+    yetAnotherContainer.addChild(blueBunny);
+
+    blueBunny.cursor = "pointer";
+    blueBunny.eventMode = "static";
+    blueBunny.on("pointertap", () => {
+        console.log("i can interact with the blue bunny");
     });
 
-    sp.position.set(850, 330);
-    sp.scale.set(0.75);
-    sp.state.setAnimation(0, "fs_hit", true);
-    stage.addChild(sp);
+    greenBunny.cursor = "pointer";
+    greenBunny.eventMode = "static";
+    greenBunny.on("pointertap", () => {
+        console.log("i can't interact with the green bunny");
+    });
+
+    app.stage.addChild(spine);
+    app.stage.addChild(yetAnotherContainer);
 });
 
 async function loadGameAssets(): Promise<void> {
     const manifest = {
         bundles: [
             {
-                name: "pixie",
+                name: "bundle",
                 assets: [
                     {
-                        alias: "character_skeleton",
-                        src: "./assets/character@1.5x.json",
+                        alias: "characterData",
+                        src: "./assets/spineboy-pro.json",
                     },
                     {
-                        alias: "character_atlas",
-                        src: "./assets/character@1.5x.atlas",
+                        alias: "characterAtlas",
+                        src: "./assets/spineboy-pro.atlas",
+                    },
+                    {
+                        alias: "bunnyBlue",
+                        src: "./assets/bunny_blue.png",
+                    },
+                    {
+                        alias: "bunnyGreen",
+                        src: "./assets/bunny_green.png",
                     },
                 ],
             },
@@ -75,17 +82,5 @@ async function loadGameAssets(): Promise<void> {
     };
 
     await Assets.init({ manifest });
-    await Assets.load(["character_skeleton", "character_atlas"]);
-}
-
-function resizeCanvas(): void {
-    const resize = () => {
-        app.renderer.resize(window.innerWidth, window.innerHeight);
-        app.stage.scale.x = window.innerWidth / gameWidth;
-        app.stage.scale.y = window.innerHeight / gameHeight;
-    };
-
-    resize();
-
-    window.addEventListener("resize", resize);
+    await Assets.load(["characterData", "characterAtlas", "bunnyBlue", "bunnyGreen"]);
 }
